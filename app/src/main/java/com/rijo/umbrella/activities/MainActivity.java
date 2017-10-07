@@ -1,7 +1,9 @@
-package com.rijo.umbrella;
+package com.rijo.umbrella.activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import com.rijo.umbrella.R;
 
 public class MainActivity extends AppCompatActivity {
 
