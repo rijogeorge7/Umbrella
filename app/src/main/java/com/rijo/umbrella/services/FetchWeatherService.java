@@ -64,8 +64,8 @@ public class FetchWeatherService extends Service {
     private Conditions getConditionsfromUrl(String conditionApi) {
         String imagesString= Utilities.downloadJsonFromUrl(conditionApi);
         if(imagesString!=null) {
-            Conditions images = Utilities.getClassFromJSONString(imagesString, Conditions.class);
-            return images;
+            Conditions condition = Utilities.getClassFromJSONString(imagesString, Conditions.class);
+            return condition;
         }
         else {
             return null;
