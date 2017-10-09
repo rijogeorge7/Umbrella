@@ -1,7 +1,7 @@
-package com.rijo.umbrella.model;
+package com.rijo.umbrella.model.forcast;
 
 /**
- * Created by rijogeorge on 10/7/17.
+ * Created by rijogeorge on 10/8/17.
  */
 
 import com.google.gson.annotations.Expose;

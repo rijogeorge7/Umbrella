@@ -1,4 +1,4 @@
-package com.rijo.umbrella;
+package com.rijo.umbrella.util;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -6,7 +6,6 @@ import android.net.NetworkInfo;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.rijo.umbrella.model.Conditions;
 
 import java.io.IOException;
 
