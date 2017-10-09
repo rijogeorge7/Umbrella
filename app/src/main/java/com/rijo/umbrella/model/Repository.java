@@ -20,11 +20,10 @@ import java.util.concurrent.Future;
  */
 
 public class Repository {
-    public Weather fetchWeatherData() {
+    public Weather fetchWeatherData(String zip) {
         Weather weather=null;
         Conditions conditions=null;
         Forcast forcast=null;
-        final String zip="95391";
         conditions=getConditionsfromUrl(Const.CONDITION_API+zip+".json");
         forcast=getForcastfromUrl(Const.FORCAST_API+zip+".json");
         if(conditions!=null&&forcast!=null) {

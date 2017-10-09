@@ -1,11 +1,15 @@
 package com.rijo.umbrella.activities;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -30,33 +34,49 @@ public class MainActivity extends AppCompatActivity {
     public static final String HOURLY_WEATHER_DAY="com.rijo.umbrella.activities.MainActivity.weather.hourlyWeatherDay";
     public static final String HOURLY_WEATHER_SHOWMETRIC="com.rijo.umbrella.activities.MainActivity.weather.hourlyWeatherShowMetric";
     Repository repository;
-    boolean showMetric=true;
+    boolean showMetric;
+    private String zip;
     TextView locationTv,tempTv,statusTv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         repository=new Repository();
-        locationTv=(TextView)findViewById(R.id.locationTv);
         tempTv=(TextView)findViewById(R.id.tempTv);
         statusTv=(TextView)findViewById(R.id.statusTv);
         if(Utilities.IsInternetAvailable(getApplicationContext())) {
-            updateWeatherData();
+            showMetric=getPreferences(Context.MODE_PRIVATE).getBoolean("showMetric",true);
+            zip=getPreferences(Context.MODE_PRIVATE).getString("zipValue",null);
+            if(zip==null){
+                showEnterZipDialog();
+            }
+            else{
+                updateWeatherData(zip);
+            }
+
         }
         else {
             showNoNetworkDialog();
         }
     }
 
-    private void updateWeatherData() {
+
+
+    private void updateWeatherData(final String zip) {
         Weather weather=null;
         ExecutorService executor= Executors.newSingleThreadExecutor();
         Future<Weather> imageFuture=executor.submit(new Callable<Weather>() {
             @Override
             public Weather call() throws Exception {
-                Weather weather=repository.fetchWeatherData();
+                final Weather weather=repository.fetchWeatherData(zip);
                 if(weather!=null){
-                    updateGUI(weather);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateGUI(weather);
+                        }
+                    });
+
                 }
                 else {
 
@@ -84,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
         else {
             headView.setBackgroundColor(getResources().getColor(R.color.colorCoolTemp));
         }
+        locationTv=(TextView)findViewById(R.id.locationTv);
         locationTv.setText(weather.getLocation());
         if(showMetric)
             tempTv.setText(String.valueOf(Math.round(weather.getTempF())));
@@ -140,6 +161,52 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 finish();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        builder.show();
+    }
+
+    private void showEnterZipDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Enter zip code");
+
+// Set up the input
+        final EditText input = new EditText(this);
+// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        builder.setView(input);
+
+// Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String m_Text = input.getText().toString();
+                if(m_Text.length()==5){
+                    SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("zipValue", m_Text);
+                    editor.commit();
+                    updateWeatherData(m_Text);
+
+                }
+                else{
+                    zipInputErrorDialog();
+                }
+            }
+        });
+
+        builder.show();
+    }
+    private void zipInputErrorDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setMessage(R.string.enter_correct_zip)
+                .setTitle(R.string.zip_issue);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                showEnterZipDialog();
             }
         });
 
