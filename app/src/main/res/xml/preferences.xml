@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference android:title="zip code"
+        android:key="zipValue"
+        android:inputType="number"
+        android:summary="Please provide your zipcode"></EditTextPreference>
+    <ListPreference     android:title="Unit"
+        android:summary="Select the kind of Unit"
+        android:key="showMetricString"
+        android:defaultValue="1"
+        android:entries="@array/unitArray"
+        android:entryValues="@array/unitValues" />
+</PreferenceScreen>

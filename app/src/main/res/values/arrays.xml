@@ -1,0 +1,11 @@
+<resources>
+    <string-array name="unitArray">
+        <item>FarenHeat</item>
+        <item>Celcious</item>
+    </string-array>
+
+    <string-array name="unitValues">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+</resources>

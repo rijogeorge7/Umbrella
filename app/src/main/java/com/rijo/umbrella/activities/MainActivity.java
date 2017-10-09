@@ -3,13 +3,17 @@ package com.rijo.umbrella.activities;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -33,33 +37,65 @@ public class MainActivity extends AppCompatActivity {
     public static final String HOURLY_WEATHER="com.rijo.umbrella.activities.MainActivity.weather.hourlyWeather";
     public static final String HOURLY_WEATHER_DAY="com.rijo.umbrella.activities.MainActivity.weather.hourlyWeatherDay";
     public static final String HOURLY_WEATHER_SHOWMETRIC="com.rijo.umbrella.activities.MainActivity.weather.hourlyWeatherShowMetric";
+    public static boolean preferenceChanged=false;
     Repository repository;
     boolean showMetric;
     private String zip;
+    SharedPreferences SPreference;
     TextView locationTv,tempTv,statusTv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        SPreference = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         repository=new Repository();
         tempTv=(TextView)findViewById(R.id.tempTv);
         statusTv=(TextView)findViewById(R.id.statusTv);
-        if(Utilities.IsInternetAvailable(getApplicationContext())) {
-            showMetric=getPreferences(Context.MODE_PRIVATE).getBoolean("showMetric",true);
-            zip=getPreferences(Context.MODE_PRIVATE).getString("zipValue",null);
-            if(zip==null){
+        if (Utilities.IsInternetAvailable(getApplicationContext())) {
+            String unit = SPreference.getString("showMetricString", "1");
+            if (unit.equals("1"))
+                showMetric = true;
+            else
+                showMetric = false;
+            //showMetric=SPreference.getBoolean("showMetric",true);
+            zip = SPreference.getString("zipValue", null);
+            if (zip == null) {
                 showEnterZipDialog();
-            }
-            else{
+            } else {
                 updateWeatherData(zip);
             }
 
-        }
-        else {
+        } else {
             showNoNetworkDialog();
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(preferenceChanged) {
+            preferenceChanged=false;
+            String unit = SPreference.getString("showMetricString", "1");
+            if (unit.equals("1"))
+                showMetric = true;
+            else
+                showMetric = false;
+            //showMetric=SPreference.getBoolean("showMetric",true);
+            zip = SPreference.getString("zipValue", null);
+            if (zip == null) {
+                showEnterZipDialog();
+            } else {
+                updateWeatherData(zip);
+            }
+        }
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+    }
 
 
     private void updateWeatherData(final String zip) {
@@ -97,6 +133,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateGUI(Weather weather) {
+        ImageButton preferenceButton=(ImageButton)findViewById(R.id.preferenceButton);
+        preferenceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, UmbrellaPreferencesActivity.class));
+            }
+        });
         ConstraintLayout headView=(ConstraintLayout)findViewById(R.id.headView);
         if(weather.getTempF()>60){
             headView.setBackgroundColor(getResources().getColor(R.color.colorHotTemp));
@@ -184,8 +227,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 String m_Text = input.getText().toString();
                 if(m_Text.length()==5){
-                    SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPref.edit();
+                    //SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = SPreference.edit();
                     editor.putString("zipValue", m_Text);
                     editor.commit();
                     updateWeatherData(m_Text);
