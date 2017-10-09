@@ -1,17 +1,42 @@
 package com.rijo.umbrella.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Date;
 
 /**
  * Created by rijogeorge on 10/8/17.
  */
 
-public class HourlyWeather {
+public class HourlyWeather implements Parcelable{
     private Date date;
     private String hour;
     private String tempF;
     private String tempC;
     private String imageUrl;
+
+    protected HourlyWeather(Parcel in) {
+        hour = in.readString();
+        tempF = in.readString();
+        tempC = in.readString();
+        imageUrl = in.readString();
+    }
+    public HourlyWeather() {
+
+    }
+
+    public static final Creator<HourlyWeather> CREATOR = new Creator<HourlyWeather>() {
+        @Override
+        public HourlyWeather createFromParcel(Parcel in) {
+            return new HourlyWeather(in);
+        }
+
+        @Override
+        public HourlyWeather[] newArray(int size) {
+            return new HourlyWeather[size];
+        }
+    };
 
     public Date getDate() {
         return date;
@@ -51,5 +76,18 @@ public class HourlyWeather {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(hour);
+        parcel.writeString(tempF);
+        parcel.writeString(tempC);
+        parcel.writeString(imageUrl);
     }
 }
